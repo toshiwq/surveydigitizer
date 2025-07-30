@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-
+import Chart from '../../../components/ui/Chart';
 import Button from '../../../components/ui/Button';
 
-const SatisfactionChart = ({ data, title, type = 'pie' }) => {
+const SatisfactionChart = ({ title, type = 'pie' }) => {
   const [chartType, setChartType] = useState(type);
 
   const pieData = [
@@ -22,64 +21,10 @@ const SatisfactionChart = ({ data, title, type = 'pie' }) => {
     { dimension: 'Servicio general', satisfecho: 83, insatisfecho: 17 }
   ];
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-popover border border-border rounded-lg p-3 shadow-lg">
-          <p className="text-sm font-medium text-foreground">{label}</p>
-          {payload.map((entry, index) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: {entry.value}{chartType === 'pie' ? '%' : ''}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const renderPieChart = () => (
-    <ResponsiveContainer width="100%" height={400}>
-      <PieChart>
-        <Pie
-          data={pieData}
-          cx="50%"
-          cy="50%"
-          labelLine={false}
-          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-          outerRadius={120}
-          fill="#8884d8"
-          dataKey="value"
-        >
-          {pieData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
-          ))}
-        </Pie>
-        <Tooltip content={<CustomTooltip />} />
-        <Legend />
-      </PieChart>
-    </ResponsiveContainer>
-  );
-
-  const renderBarChart = () => (
-    <ResponsiveContainer width="100%" height={400}>
-      <BarChart data={barData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-        <XAxis 
-          dataKey="dimension" 
-          tick={{ fontSize: 12 }}
-          angle={-45}
-          textAnchor="end"
-          height={80}
-        />
-        <YAxis tick={{ fontSize: 12 }} />
-        <Tooltip content={<CustomTooltip />} />
-        <Legend />
-        <Bar dataKey="satisfecho" fill="#10B981" name="Satisfecho" />
-        <Bar dataKey="insatisfecho" fill="#EF4444" name="Insatisfecho" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
+  const barSeries = [
+    { name: 'Satisfecho', dataKey: 'satisfecho', color: '#10B981' },
+    { name: 'Insatisfecho', dataKey: 'insatisfecho', color: '#EF4444' }
+  ];
 
   return (
     <div className="bg-card border border-border rounded-lg p-6">
@@ -106,14 +51,18 @@ const SatisfactionChart = ({ data, title, type = 'pie' }) => {
       </div>
 
       <div className="w-full">
-        {chartType === 'pie' ? renderPieChart() : renderBarChart()}
+        {chartType === 'pie' ? (
+          <Chart type="pie" data={pieData} />
+        ) : (
+          <Chart type="bar" data={barData} xAxisDataKey="dimension" series={barSeries} />
+        )}
       </div>
 
       <div className="mt-6 grid grid-cols-2 lg:grid-cols-5 gap-4">
         {pieData.map((item, index) => (
           <div key={index} className="flex items-center space-x-2">
-            <div 
-              className="w-3 h-3 rounded-full" 
+            <div
+              className="w-3 h-3 rounded-full"
               style={{ backgroundColor: item.color }}
             />
             <div>
