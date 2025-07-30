@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import Chart from '../../../components/ui/Chart';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
 const EngineerPerformanceChart = ({ title }) => {
   const [chartType, setChartType] = useState('bar');
-  const [selectedEngineer, setSelectedEngineer] = useState('all');
 
   const performanceData = [
     {
@@ -58,66 +57,19 @@ const EngineerPerformanceChart = ({ title }) => {
     { dimension: 'Satisfacción general', value: 89, fullMark: 100 }
   ];
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-popover border border-border rounded-lg p-3 shadow-lg">
-          <p className="text-sm font-medium text-foreground mb-2">{label}</p>
-          {payload.map((entry, index) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: {entry.value}%
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
+  const barSeries = [
+    { name: 'Satisfacción general', dataKey: 'satisfaccion', color: '#2563EB' },
+    { name: 'Tiempo de respuesta', dataKey: 'tiempoRespuesta', color: '#10B981' },
+    { name: 'Conocimiento técnico', dataKey: 'conocimientoTecnico', color: '#F59E0B' },
+    { name: 'Cortesía', dataKey: 'cortesia', color: '#8B5CF6' }
+  ];
 
-  const renderBarChart = () => (
-    <ResponsiveContainer width="100%" height={400}>
-      <BarChart data={performanceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-        <XAxis 
-          dataKey="engineer" 
-          tick={{ fontSize: 12 }}
-        />
-        <YAxis tick={{ fontSize: 12 }} domain={[0, 100]} />
-        <Tooltip content={<CustomTooltip />} />
-        <Legend />
-        <Bar dataKey="satisfaccion" fill="#2563EB" name="Satisfacción general" />
-        <Bar dataKey="tiempoRespuesta" fill="#10B981" name="Tiempo de respuesta" />
-        <Bar dataKey="conocimientoTecnico" fill="#F59E0B" name="Conocimiento técnico" />
-        <Bar dataKey="cortesia" fill="#8B5CF6" name="Cortesía" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
-
-  const renderRadarChart = () => (
-    <ResponsiveContainer width="100%" height={400}>
-      <RadarChart data={radarData} margin={{ top: 20, right: 80, bottom: 20, left: 80 }}>
-        <PolarGrid stroke="#E2E8F0" />
-        <PolarAngleAxis tick={{ fontSize: 12 }} />
-        <PolarRadiusAxis 
-          angle={90} 
-          domain={[0, 100]} 
-          tick={{ fontSize: 10 }}
-        />
-        <Radar
-          name="Rendimiento promedio"
-          dataKey="value"
-          stroke="#2563EB"
-          fill="#2563EB"
-          fillOpacity={0.3}
-          strokeWidth={2}
-        />
-        <Tooltip content={<CustomTooltip />} />
-      </RadarChart>
-    </ResponsiveContainer>
-  );
+  const radarSeries = [
+    { name: 'Rendimiento promedio', dataKey: 'value', color: '#2563EB' }
+  ];
 
   const getTopPerformer = () => {
-    return performanceData.reduce((prev, current) => 
+    return performanceData.reduce((prev, current) =>
       (prev.satisfaccion > current.satisfaccion) ? prev : current
     );
   };
@@ -152,7 +104,23 @@ const EngineerPerformanceChart = ({ title }) => {
       </div>
 
       <div className="w-full">
-        {chartType === 'bar' ? renderBarChart() : renderRadarChart()}
+        {chartType === 'bar' ? (
+          <Chart
+            type="bar"
+            data={performanceData}
+            xAxisDataKey="engineer"
+            series={barSeries}
+            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+          />
+        ) : (
+          <Chart
+            type="radar"
+            data={radarData}
+            xAxisDataKey="dimension"
+            series={radarSeries}
+            margin={{ top: 20, right: 80, bottom: 20, left: 80 }}
+          />
+        )}
       </div>
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
